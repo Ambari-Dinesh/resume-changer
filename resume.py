@@ -1,3 +1,4 @@
+#this code generates a resume with various font-size,color and background color according to the command
 import requests
 import argparse
 from fpdf import FPDF
@@ -6,6 +7,7 @@ def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
+#fetches data from resume
 def fetch_resume(name):
     url = f"https://expressjs-api-resume-random.onrender.com/resume?name={name}"
     response = requests.get(url)
@@ -23,13 +25,15 @@ class ResumePDF(FPDF):
         self.set_margins(15, 15, 15)
         self.set_fill_color(*self.bg_color)
         self.rect(0, 0, self.w, self.h, 'F')
-
+    
+    #adds a line after each section
     def draw_separator(self):
         self.set_draw_color(180, 180, 180)
         self.set_line_width(0.3)
         self.line(self.l_margin, self.get_y(), self.w - self.r_margin, self.get_y())
         self.ln(5)
-
+    
+    #adds header
     def header_info(self, data):
         self.set_text_color(*self.font_color)
         self.set_font("Arial", "B", self.font_size + 4)
@@ -41,7 +45,8 @@ class ResumePDF(FPDF):
         self.cell(0, 8, data.get("address", ""), ln=True)
         self.ln(6)
         self.draw_separator()
-
+    
+    #adds section
     def add_section(self, title, content):
         self.set_text_color(*self.font_color)
 
@@ -59,6 +64,7 @@ class ResumePDF(FPDF):
                 if isinstance(item, str):
                     self.cell(5)  # indent
                     self.cell(0, self.font_size + 2, f"- {item}", ln=True)
+                #adds content inside the section
                 elif isinstance(item, dict):
                     self.set_font("Arial", "B", self.font_size + 4)
                     self.cell(0, self.font_size + 4, item.get("title", ""), ln=True)
